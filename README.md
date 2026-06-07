@@ -1,460 +1,322 @@
-[![CI](https://github.com/GitoxideLabs/gitoxide/workflows/ci/badge.svg)](https://github.com/GitoxideLabs/gitoxide/actions)
-[![Crates.io](https://img.shields.io/crates/v/gitoxide.svg)](https://crates.io/crates/gitoxide)
-<img src="etc/msrv-badge.svg">
+> **New here?** Start with [`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md) — a first-hour guide for human developers (prerequisites, build, project structure, IDE setup, CI/CD, and making your first PR).
 
-`gitoxide` is an implementation of `git` written in Rust for developing future-proof applications which strive for correctness and
-performance while providing a pleasant and unsurprising developer experience.
+# Local CI Validation (MANDATORY)
 
-There are two primary ways to use `gitoxide`:
+All contributors must use the provided Makefile and actionlint to validate their changes locally before pushing or opening a PR.
 
-1. **As Rust library**: Use the [`gix`](https://docs.rs/gix) crate as a Cargo dependency for API access.
-1. **As command-line tool**: The `gix` binary as development tool to help testing the API in real repositories,
-    and the `ein` binary with workflow-enhancing tools. Both binaries may forever be unstable,
-    *do not rely on them in scripts*.
+## How to Validate Locally
 
-[![asciicast](etc/gix-asciicast.svg)](https://asciinema.org/a/542159)
-
-[`gix`]: https://docs.rs/gix
-
-## Development Status
-
-The command-line tools as well as the status of each crate is described in
-[the crate status document](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md).
-
-For use in applications, look for the [`gix`](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix) crate,
-which serves as entrypoint to the functionality provided by various lower-level plumbing crates like
-[`gix-config`](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-config).
-
-### Feature Discovery
-
-> Can `gix` do what I need it to do?
-
-The above can be hard to answer and this paragraph is here to help with feature discovery.
-
-Look at [`crate-status.md`](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md) for a rather exhaustive document that contains
-both implemented and planned features.
-
-Further, the [`gix` crate documentation with the `git2` search term](https://docs.rs/gix/latest/gix?search=git2) helps to find all currently
-known `git2` equivalent method calls. Please note that this list is definitely not exhaustive yet, but might help if you are coming from `git2`.
-
-What follows is a high-level list of features and those which are planned:
-
-* [x] clone
-* [x] fetch
-* [ ] push
-* [x] blame (*plumbing*)
-* [x] status
-* [x] blob and tree-diff
-* [ ] merge
-    - [x] blobs
-    - [x] trees
-    - [ ] commits
-* [x] commit
-    - [ ] hooks
-* [x] commit-graph traversal
-* [ ] rebase
-* [x] worktree checkout and worktree stream
-* [ ] reset
-* [x] reading and writing of objects
-* [x] reading and writing of refs
-* [x] reading and writing of `.git/index`
-* [x] reading and writing of git configuration
-* [x] pathspecs
-* [x] revspecs
-* [x] `.gitignore` and `.gitattributes`
-
-### Crates
-
-Follow linked crate name for detailed status. Please note that all crates follow [semver] as well as the [stability guide].
-
-[semver]: https://semver.org
-
-### Production Grade
-
-* **Stability Tier 1**
-  - [gix-lock](https://github.com/GitoxideLabs/gitoxide/blob/main/gix-lock/README.md)
-
-* **Stability Tier 2**
-  - [gix-tempfile](https://github.com/GitoxideLabs/gitoxide/blob/main/gix-tempfile/README.md)
-
-### Stabilization Candidates
-
-Crates that seem feature complete and need to see some more use before they can be released as 1.0.
-Documentation is complete and was reviewed at least once.
-
-* [gix-mailmap](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-mailmap)
-* [gix-chunk](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-chunk)
-* [gix-ref](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-ref)
-* [gix-config](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-config)
-* [gix-config-value](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-config-value)
-* [gix-glob](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-glob)
-* [gix-actor](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-actor)
-* [gix-hash](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-hash)
-
-### Initial Development
-
-These crates may be missing some features and thus are somewhat incomplete, but what's there
-is usable to some extent.
-
-* **usable** _(with rough but complete docs, possibly incomplete functionality)_
-  * [gix](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix) (**⬅ entrypoint**)
-  * [gix-object](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-object)
-  * [gix-validate](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-validate)
-  * [gix-url](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-url)
-  * [gix-packetline](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-packetline)
-  * [gix-packetline-blocking](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-packetline)
-  * [gix-transport](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-transport)
-  * [gix-protocol](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-protocol)
-  * [gix-pack](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-pack)
-  * [gix-odb](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-odb)
-  * [gix-commitgraph](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-commitgraph)
-  * [gix-diff](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-diff)
-  * [gix-traverse](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-traverse)
-  * [gix-features](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-features)
-  * [gix-credentials](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-credentials)
-  * [gix-sec](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-sec)
-  * [gix-quote](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-quote)
-  * [gix-discover](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-discover)
-  * [gix-path](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-path)
-  * [gix-attributes](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-attributes)
-  * [gix-ignore](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-ignore)
-  * [gix-pathspec](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-pathspec)
-  * [gix-index](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-index)
-  * [gix-revision](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-revision)
-  * [gix-revwalk](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-revwalk)
-  * [gix-command](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-command)
-  * [gix-prompt](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-prompt)
-  * [gix-refspec](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-refspec)
-  * [gix-fs](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-fs)
-  * [gix-utils](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-utils)
-  * [gix-hashtable](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-hashtable)
-  * [gix-worktree](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-worktree)
-  * [gix-bitmap](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-bitmap)
-  * [gix-negotiate](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-negotiate)
-  * [gix-filter](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-filter)
-  * [gix-worktree-stream](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-worktree-stream)
-  * [gix-archive](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-archive)
-  * [gix-submodule](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-submodule)
-  * [gix-status](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-status)
-  * [gix-worktree-state](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-worktree-state)
-  * [gix-date](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-date)
-  * [gix-dir](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-dir)
-  * [gix-merge](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-merge)
-  * [gix-shallow](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-shallow)
-  * [gix-error](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-error)
-  * `gitoxide-core`
-* **very early**  _(possibly without any documentation and many rough edges)_
-  * [gix-blame](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-blame)
-* **idea** _(just a name placeholder)_
-  * [gix-note](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-note)
-  * [gix-fetchhead](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-fetchhead)
-  * [gix-lfs](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-lfs)
-  * [gix-rebase](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-rebase)
-  * [gix-sequencer](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-sequencer)
-  * [gix-tui](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-tui)
-  * [gix-tix](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-tix)
-  * [gix-bundle](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-bundle)
-  * [gix-fsck](https://github.com/GitoxideLabs/gitoxide/blob/main/crate-status.md#gix-fsck)
-
-### Stress Testing
-  * [x] Verify huge packs
-  * [x] Explode a pack to disk
-  * [x] Generate and verify large commit graphs
-  * [ ] Generate huge pack from a lot of loose objects
-
-### Stability and MSRV
-
-Our [stability guide] helps to judge how much churn can be expected when depending on crates in this workspace.
-
-[stability guide]: https://github.com/GitoxideLabs/gitoxide/blob/main/STABILITY.md
-
-## Installation
-
-### Download a Binary Release
-
-Using `cargo binstall`, one is able to fetch [binary releases][releases]. You can install it via `cargo install cargo-binstall`, assuming
-the [rust toolchain][rustup] is present.
-
-Then install gitoxide with `cargo binstall gitoxide`.
-
-See the [releases section][releases] for manual installation and various alternative builds that are _slimmer_ or _smaller_, depending
-on your needs, for _Linux_, _MacOS_ and _Windows_.
-
-[releases]: https://github.com/GitoxideLabs/gitoxide/releases
-
-### Download from Arch Linux repository
-
-For Arch Linux you can download `gitoxide` from `community` repository:
-
-```sh
-pacman -S gitoxide
-```
-
-### Download from Exherbo Linux Rust repository
-
-For Exherbo Linux you can download `gitoxide` from the [Rust](https://gitlab.exherbo.org/exherbo/rust/-/tree/master/packages/dev-scm/gitoxide) repository:
-
-```sh
-cave resolve -x repository/rust
-cave resolve -x gitoxide
-```
-
-### From Source via Cargo
-
-`cargo` is the Rust package manager which can easily be obtained through [rustup]. With it, you can build your own binary
-effortlessly and for your particular CPU for additional performance gains.
-
-The minimum supported Rust version is [documented in the Cargo package](https://github.com/GitoxideLabs/gitoxide/blob/main/gix/Cargo.toml#L12-L14),
-the latest stable one will work as well.
-
-There are various build configurations, all of them are [documented here](https://docs.rs/crate/gitoxide/latest). The documentation should also be useful
-for packagers who need to tune external dependencies.
-
-```sh
-# A way to install `gitoxide` with just Rust and a C compiler installed.
-# If there are problems with SSL certificates during clones, try to omit `--locked`.
-cargo install gitoxide --locked --no-default-features --features max-pure
-
-# The default installation, 'max', is the fastest, but also needs `cmake` to build successfully.
-# Installing it is platform-dependent.
-cargo install gitoxide
-
-# For smaller binaries and even faster build times that are traded for a less fancy CLI implementation,
-# use the `lean` feature.
-cargo install gitoxide --locked --no-default-features --features lean
-```
-
-The following installs the latest unpublished `max` release directly from git:
-
-```sh
-cargo install --git https://github.com/GitoxideLabs/gitoxide gitoxide
-```
-
-#### How to deal with build failures
-
-On some platforms, installation may fail due to lack of tools required by *C* toolchains. This can generally be avoided by installation with:
-
-```sh
-cargo install gitoxide --no-default-features --features max-pure
-```
-
-What follows is a list of known failures.
-
-- On Fedora, `perl` needs to be installed for `OpenSSL` to build properly. This can be done with the following command (see [issue #592](https://github.com/GitoxideLabs/gitoxide/issues/592)):
-
-  ```sh
-  dnf install perl
+1. **Run all checks:**
+  ```bash
+  make test
+  ```
+2. **Rust workspace (mirrors Workspace Rust Checks CI):**
+  ```bash
+  make lci
+  # Alias:
+  make local-ci
+  # If stevedores-org/local-ci CLI is installed, `make local-ci`
+  # uses `.local-ci.toml`; otherwise it falls back to tools/lci.
+  # Machine-readable output:
+  make lci-json
+  ```
+3. **Just check YAML workflows:**
+  ```bash
+  make test-yaml
   ```
 
-### Using Docker
-
-Some CI/CD pipelines leverage repository cloning. Below is a copy-paste-able example to build docker images for such workflows.
-As no official image exists (at this time), an image must first be built.
-
-> [!NOTE]
-> The dockerfile isn't continuously tested as it costs too much time and thus might already be broken.
-> PRs are welcome.
-
-#### Building the most compatible base image
-
-```sh
-docker build -f etc/docker/Dockerfile.alpine -t gitoxide:latest --compress . --target=pipeline
+If you do not have actionlint installed:
+```bash
+brew install actionlint
 ```
 
-#### Basic usage in a Pipeline
+For more details, see [docs/LOCAL_CI_VALIDATION.md](docs/LOCAL_CI_VALIDATION.md).
 
-For example, if a `Dockerfile` currently uses something like `RUN git clone https://github.com/GitoxideLabs/gitoxide`, first build the image:
+This workflow ensures that all documentation and YAML workflows are robust and error-free before merging to develop.
 
-```sh
-docker build -f etc/docker/Dockerfile.alpine -t gitoxide:latest --compress .
+## Agent Pre-Commit
+
+All agents must run the repo pre-commit checks before committing changes.
+# **Grow Without Limits — Lornuai, Inc.**
+
+## ---
+
+[![Bun](https://img.shields.io/badge/Bun-1.3+-black?logo=bun&logoColor=white)](https://bun.sh)
+[![Rust](https://img.shields.io/badge/Rust-1.80+-CE412B?logo=rust&logoColor=white)](https://www.rust-lang.org/)
+[![Crossplane](https://img.shields.io/badge/Crossplane-Control%20Plane-0470FF?logo=crossplane&logoColor=white)](https://crossplane.io)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-EKS%20%2F%20GKE-326CE5?logo=kubernetes&logoColor=white)](https://kubernetes.io)
+[![Kustomize](https://img.shields.io/badge/Kustomize-v5+-1ABC9C?logo=kubernetes&logoColor=white)](https://kustomize.io)
+
+
+**Mission**
+
+**Deliver a 50–70% reduction in engineering time and operational overhead** through a hardened, metadata-driven **Minimum Viable Infrastructure (MVI)**. Grow Without Limits consolidates delivery onto **one EKS/GKE cluster** with **Kustomize-based multi-namespace isolation** across `lornu-ai-dev`, `lornu-ai-staging`, and `lornu-ai-prod` namespaces.
+
+## **Autonomous Workflow Protocol**
+
+When tasked with project maintenance or objective progression, follow this Algorithmic Logic loop:
+
+1. **Poll & Prioritize**:
+   - Use available tools to fetch the latest open GitHub Pull Requests and Issues.
+   - Categorize by impact and urgency.
+
+2. **Analyze & Engage**:
+   - Review each item thoroughly.
+   - Post relevant comments, code reviews, or technical feedback directly to the threads.
+
+3. **Document**:
+   - Update the primary GitHub Issue(s) with a concise summary of progress made and the current status of the objective.
+   - This ensures the "Source of Truth" is always current.
+
+4. **Iterate**:
+   - Identify the next highest-priority action item to maintain momentum.
+   - Propose or initiate the next logical file change or command.
+
+5. **Exception Handling**:
+   - If a task is blocked, requires credentials you lack, or needs human architectural input, **STOP** immediately.
+   - Clearly define the blocker and ask the user for guidance.
+## **Shared Agent State**
+
+Lornu AI utilizes a **Shared State Mechanism** to synchronize context across multiple IDE agents (Windsurf, Cursor, VSCode):
+
+- **File**: `.lornu/STATE.json` (git-ignored)
+- **Purpose**: Tracks active agents, tasks, branch status, and compliance.
+- **Protocol**: Managed by `lornu-mcp-hub`, exposed via `mcp://lornu-ai/state`.
+- **Security**: Local-only, file permissions 600.
+
+## **CI/CD Quality Gates (Grow Without Limits Unified)**
+
+The repository implements a 3-tier validation engine for all infrastructure changes:
+
+1. **Level 1: Syntactic Build Test**: Validates that all Kustomize overlays can be built successfully (`kustomize build`).
+2. **Level 2: Schema Validation**: Uses `kubeconform` to validate Kubernetes resources against official schemas.
+3. **Level 3: Security & Policy Guardrails**: Uses `Checkov` to scan for security misconfigurations and policy violations.
+4. **Secret Scanning**: Uses `Gitleaks` to prevent sensitive data from being committed.
+5. **Label Compliance**: Ensures all resources have mandatory `lornu.ai/environment`, `lornu.ai/managed-by`, and `lornu.ai/asset-id` labels.
+6. **Gemini Code Review**: Automated AI code review for all Pull Requests (Issue #695).
+7. **PR Merge Policy**: NO pull requests may be merged if there are failing CI checks or unresolved merge conflicts.
+8. **Unit Test Coverage**: Coverage is enforced with a phased rollout via `.github/workflows/rust-coverage.yml` (75% threshold: warn on PRs/non-main pushes, block on `main` push).
+
+**Declarative GitOps Policy**: All infrastructure changes must follow the declarative GitOps workflow. Imperative commands are prohibited. See [docs/DECLARATIVE_GITOPS_POLICY.md](docs/DECLARATIVE_GITOPS_POLICY.md).
+
+## **Zero-Trust OIDC Authentication**
+
+Lornu AI implements **universal OIDC federation** for sovereign, zero-secret authentication across all environments:
+
+### **AWS Hub (EKS) - IRSA**
+- **IAM OIDC Provider**: GitHub Actions + EKS service accounts
+- **Roles**: `lornu-ai-github-actions-role`, `lornu-ai-flux-controller-role`
+- **Annotation**: `eks.amazonaws.com/role-arn: arn:aws:iam::${AWS_ACCOUNT_ID}:role/...`
+
+### **GCP Spoke (GKE) - Workload Identity**
+- **Workload Identity Pool**: `github-pool` with GitHub + EKS providers
+- **Service Account**: `lornu-ai-sa@${GCP_PROJECT_ID}.iam.gserviceaccount.com`
+- **Annotation**: `iam.gke.io/gcp-service-account: ...`
+
+### **GitOps Flow**
+1. **GitHub Actions** → OIDC → IAM Roles → Temporary Credentials
+2. **EKS/GKE Pods** → IRSA/Workload Identity → Cloud Resources
+3. **Zero Static Secrets** - All authentication is federated
+
+These gates are enforced on every Pull Request to `develop` and `staging`.
+
+## **Global Low-Cost Data Fabric (GLCDF)**
+
+The **GLCDF** is a unified, globally distributed persistence layer designed for autonomous agents, optimized for extreme cost-efficiency and sovereign data control (Issue #541).
+
+- **Storage Engine**: Azure Cosmos DB (Serverless/Provisioned Multi-region) + Azure Blob Storage.
+- **Architecture**: Decoupled compute/storage with zero-copy ingest and local-first caching.
+- **Cost Optimization**: 50-70% reduction in state storage costs compared to traditional NoSQL.
+- **Latency Sovereignty**: Global distribution ensuring <100ms state retrieval for agents worldwide.
+- **Governance**: Integrated with `warden` for PII/Secret scrubbing and `zen` for governance.
+- **Client Library**: `packages/glcdf-client/` - Python async client with lazy loading and local caching.
+
+### Quick Start (glcdf-client)
+Client libraries available in Rust and TypeScript for agent state management.
+
+- **Build Once, Promote Often**: All container images are built and mirrored to all clouds by Dockworker.ai, ensuring a single cryptographic digest. Production is promoted by SHA.
+- **Target Branch**: All development PRs must target the `develop` branch.
+- `.github/workflows/`: Consolidated intelligent orchestrators (Issue #440)
+- `dockworker.toml`: Sovereign Build Manifest (Issue #439)
+- `crossplane/hub/deploy/overlays/gcp/`: GCP hub control-plane + infra (PRIMARY Operational Hub)
+- `crossplane/hub/deploy/overlays/azure/`: Azure hub control-plane + infra (In Provisioning)
+- **Production**: Updates to `main` are for production stabilization and promotion.
+
+* **Control Plane (Private Hub)**: `private-lornu-ai` (Zero-Secret, SOPS-Encrypted).
+* **Workload Plane (Public Spoke)**: `lornu-ai` (Application Manifests, Open-Source compatible).
+* **Sync Mechanism**: Flux CD bootstrapped to `private-lornu-ai`.
+* **Single EKS/GKE cluster** with `lornu-ai-dev`, `lornu-ai-staging`, and `lornu-ai-prod` namespaces.
+* **Kustomize overlays** per environment (Spoke-managed).
+* **Crossplane** as infrastructure control plane.
+* **Modern runtimes**: Rust (Backend/Core), Bun (Frontend).
+* **Tooling**: Rust (MANDATORY - Rust-or-Bust policy for all backend components), Bun (Frontend), Infrastructure Cleanup (`scripts/aws-cleanup.sh`).
+* **Performance Sovereignty**: Bolt ⚡ persona ensures sub-100ms latency and maximum cost-efficiency.
+* **Unified Organization**: High-value AI/Agentic repositories consolidated from legacy orgs (see [Repository Migration Audit](docs/STEVEI101_REPO_MIGRATION_AUDIT.md)).
+* **Global Low-Cost Data Fabric (GLCDF)**: Multi-region, Azure-optimized persistence layer for sovereign agent state and long-term memory (Issue #541).
+
+## **Key Operational Agents**
+
+Lornu AI includes several autonomous agents for operational excellence:
+
+- **SRE Auto-Remediation Agent** (`ai-agents/sre-agent-rs/`): Rust-based Kubernetes pod failure detection with AI-driven remediation using GPT-4o via Rig framework
+- **Drift Enforcer Agent** (`ai-agents/drift-enforcer/`): Multi-cloud resource sprawl detection and automated decommissioning
+- **Workflow Sentinel** (`ai-agents/workflow-sentinel-rs/`): High-performance GitHub Actions linter implemented in Rust
+- **PR Review Agent** (`ai-agents/ai-agent-pr-review/`): Automated code review with Gemini integration
+- **Cloudflare DNS Agent** (`ai-agents/cloudflare-dns-agent/`): Multi-cloud DNS synchronization across AWS Route53, GCP Cloud DNS, and Azure DNS
+
+For complete agent documentation, see [AGENTS.md](AGENTS.md).
+
+## **Directory Structure**
+
+```plaintext
+crossplane/hub/deploy/          # Unified hub infrastructure (Issue #472)
+  ├── base/                     # Shared infrastructure APIs
+  └── overlays/{aws,azure,gcp}/ # Cloud-specific + app-agents
+crossplane/spoke/apps/          # Spoke workloads (23 apps + 5 hub agents)
+apps/                           # Deployable applications (23 total)
+  ├── automation-hub/           # Cloudflare Workers (OIDC hub + CI automation)
+  ├── lornu-ai/                 # Lornu AI application parent
+  │   ├── frontend/             # React frontend (Bun)
+  │   └── deploy/               # Deployment manifests (Flux/Kustomize)
+  ├── dockworker-ai/            # Dockworker AI application parent
+  │   ├── frontend/             # React frontend (Bun)
+  │   ├── backend/              # Rust backend
+  │   └── worker/               # Rust worker
+  ├── api/                      # Rust backend
+  ├── cloudflare-dns-agent/     # DNS Sync Agent (Rust)
+  ├── cloudflare-edge-discovery/ # Edge Discovery Worker (TypeScript)
+  └── [17 more applications]
+ai-agents/                      # Autonomous Agents (Rust)
+  ├── aiops-agent/              # AIOps Auto-Remediation
+  ├── ai-agent-cleaner/         # Security scanner
+  ├── ai-agent-pr-review/       # CI gatekeeper
+  ├── sre-agent/                # SRE Auto-Remediation
+  └── agent-registry/           # FastA2A Agent Registry Service
+packages/                       # Reusable libraries ONLY
+  ├── glcdf-client/             # Global Low-Cost Data Fabric client (Rust/TS)
+  ├── lornu-mcp-hub/            # MCP tools hub
+  └── ai-agent-cleaner/         # Cleaner library
+templates/                      # Satellite repository templates (7-File Rule, CI/CD)
+terraform/                      # Legacy infrastructure (Terraform Cloud)
 ```
 
-Then copy the binaries into your image and replace the `git` directive with a `gix` equivalent.
+### **Lornu AI Multi-Cloud Mesh (Active Satellites)**
+| Satellite | Role | Primary Cloud | Status |
+| :--- | :--- | :--- | :--- |
+| **gitlab-container-builds** | Sovereign Agent Builder & CI Templates | GitLab | ✅ Active |
+| **automation-hub** | Centralized Cloudflare Workers | Cloudflare | ✅ Active |
+| **lornu-aks-hub** | Azure Hub Control Plane | Azure | ✅ Active |
 
-```dockerfile
-COPY --from gitoxide:latest /bin/gix /usr/local/bin/
-COPY --from gitoxide:latest /bin/ein /usr/local/bin/
+| Satellite | Cloud | Region | Endpoint | Status | Logistcs |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **lornu-aks-hub** | Azure | eastus2 | `api.lornu.ai` | ✅ Active (Hub) | Flux/Crossplane |
+| **<GCP_GKE_CLUSTER_NAME>** | GCP | us-central1 | `<GCP_GKE_LB_IP>` | ✅ Active (GCP) | Flux/GKE |
+| **dockworker-ai** | AWS | us-east-2 | `dockworker.lornu.ai` | ✅ Active | Container packaging platform |
+| **financial-agent-spoke** | GCP | us-central1 | `email.lornu.ai` | ⚠️ Migrating | App+SQL Overlay |
+| **ai-agent-core** | AWS | us-east-2 | `core.lornu.ai` | ✅ Active | Flux/Crossplane |
+| **lornu-crawler** | GCP | us-central1 | `crawler.lornu.ai` | ✅ Active | Playwright/Flux |
+| **YouTube** | N/A | N/A | `youtube.com/@lornu-ai` | ✅ Active | Community Link |
 
-RUN /usr/local/bin/gix clone --depth 1 https://github.com/GitoxideLabs/gitoxide gitoxide
-```
+## **Satellite Repositories**
 
+Lornu AI uses a **hub-and-spoke architecture** where application source code lives in separate **satellite repositories**, while this hub repository manages deployment manifests and infrastructure:
 
-[releases]: https://github.com/GitoxideLabs/gitoxide/releases
-[rustup]: https://rustup.rs
+### **Active Satellite Repositories**
 
-## Usage
+| Repository | Purpose | Registry | Status |
+|------------|---------|----------|--------|
+| logistics-supervisor-api | Container packaging platform | AWS ECR | ✅ Active |
+| financial-agent-spoke | Intelligent email response | AWS ECR | ✅ Active |
+| [ai-agents-core](https://github.com/lornu-ai/ai-agents-core) | Centralized agent framework | AWS ECR | ✅ Active |
+| [lornu-crawler](https://github.com/lornu-ai/lornu-crawler) | Site crawler & screenshotter | GCP Artifact Registry | ✅ Active |
+| [cloudflare-dns-agent](apps/cloudflare-dns-agent/README.md) | Multi-Cloud DNS Sync Agent | ECR/GAR/ACR | ✅ Active |
+| [cloudflare-edge-discovery](apps/cloudflare-edge-discovery/README.md) | Edge Discovery Worker (Hyperdrive) | Cloudflare Workers | ✅ Active |
+| [lornu.ai](https://github.com/lornu-ai/lornu.ai) | Hub repository (Crossplane/Flux) | AWS ECR | ✅ Active |
+| [agentnav](https://github.com/lornu-ai/agentnav) | Agentic Navigation module | N/A | ✅ Active |
+| [product-mindset](https://github.com/lornu-ai/product-mindset) | Product Mindset analytics | N/A | ✅ Active |
+| [cursor-agent-rules](https://github.com/lornu-ai/cursor-agent-rules) | Automated AI-Code Review | N/A | ✅ Active |
+| [autonomous-sre-agent](https://github.com/lornu-ai/autonomous-sre-agent) | Sovereign SRE drift detection + auto-remediation | N/A | ✅ Active |
+| [gcp-conversation-service](https://github.com/lornu-ai/gcp-conversation-service) | Gemini Integration hub | GCP Cloud Run | ✅ Active |
+| [email-triage](https://github.com/lornu-ai/email-triage) | Automated email triage | N/A | ✅ Active |
+| [antigravity-ide-tracker](https://github.com/lornu-ai/antigravity-ide-tracker) | IDE/Dev workflow tracking | N/A | ✅ Active |
+| [not-sure](https://github.com/lornu-ai/not-sure) | Migration of stevei101/not-sure | N/A | ✅ Active |
 
-Once installed, there are two binaries:
+### **Setting Up New Satellites**
 
-* **ein**
-  * high level commands, _porcelain_, for every-day use, optimized for a pleasant user experience
-* **gix**
-  * low level commands, _plumbing_, for use in more specialized cases and to validate newly written code in real-world scenarios
+All container builds and multi-cloud pushes are now handled by Dockworker.ai, ensuring a single cryptographic digest across AWS, GCP, and Azure. See `dockworker.toml` for configuration and `.github/workflows/dockworker-sync.yml` for the workflow.
 
-## Project Goals
+**Org policy — never `Dockerfile`:** lornu-ai and stevedores-org build images with **Nix OCI** (`flake.nix`) + **dockworker.ai**, not hand-written Dockerfiles. Do not add or restore `Dockerfile` / `docker build`; see the 6-file instruction set (`.cursorrules`, `AGENTS.md`, etc.) for agents.
 
-Project goals can change over time as we learn more, and they can be challenged.
+### **Automation & Infrastructure Satellites**
 
- * **a pure-rust implementation of git**
-   * including *transport*, *object database*, *references*, *cli* and *tui*
-   * a simple command-line interface is provided for the most common git operations, optimized for
-     user experience. A *simple-git* if you so will.
-   * be the go-to implementation for anyone who wants to solve problems around git, and become
-     *the* alternative to `GitPython` and *libgit2* in the process.
-   * become the foundation for a distributed alternative to GitHub, and maybe even for use within GitHub itself
- * **learn from the best to write the best possible idiomatic Rust**
-   * *libgit2* is a fantastic resource to see what abstractions work, we will use them
-   * use Rust's type system to make misuse impossible
- * **be the best performing implementation**
-   * use Rust's type system to optimize for work not done without being hard to use
-   * make use of parallelism from the get go
-   * _sparse checkout_ support from day one
- * **assure on-disk consistency**
-   * assure reads never interfere with concurrent writes
-   * assure multiple concurrent writes don't cause trouble
- * **take shortcuts, but not in quality**
-   * binaries may use `anyhow::Error` exhaustively, knowing these errors are solely user-facing.
-   * libraries use light-weight custom errors implemented using `quick-error` or `thiserror`.
-   * internationalization is nothing we are concerned with right now.
-   * IO errors due to insufficient amount of open file handles don't always lead to operation failure
- * **Cross platform support, including Windows**
-   * With the tools and experience available here there is no reason not to support Windows.
-   * [Windows is tested on CI](https://github.com/GitoxideLabs/gitoxide/blob/df66d74aa2a8cb62d8a03383135f08c8e8c579a8/.github/workflows/rust.yml#L34)
-     and failures do prevent releases.
+**Cloudflare Workers** are managed in the **automation-hub** repository:
+- **Repository**: [lornu-ai/automation-hub](https://github.com/lornu-ai/automation-hub)
+- **Workers**: `automation-hub` (CI automation), `lornu-edge-discovery` (agent discovery via Hyperdrive)
+- **Private RAG (Issue #565)**: R2 bucket + Vectorize for agent knowledge grounding
+  - Endpoints: `/api/rag/search`, `/api/vectorize/trigger`, `/api/vectorize/status`
+  - R2 Bucket: `lornu-private-rag-prod`
+  - Vectorize Index: `lornu-private-knowledge` (768 dims, bge-base-en-v1.5)
+- **Deployment**: Uses Wrangler CLI (`wrangler deploy`)
+- **Related Issues**: #589 (Edge Discovery), #542 (CI Automation), #565 (Private RAG)
 
-## Non-Goals
+**GitLab CI/CD** configurations are managed in the **gitlab-container-builds** repository:
+- **Repository**: [lornu-ai/gitlab-container-builds](https://github.com/lornu-ai/gitlab-container-builds)
+- **Purpose**: GitLab CI/CD pipelines for container builds and multi-cloud mirroring
+- **Related**: GitLab pull mirroring setup (see `docs/GITLAB_MIRROR_SETUP.md`)
 
-Project non-goals can change over time as we learn more, and they can be challenged.
+## **Development Standards**
 
- * **replicate `git` command functionality perfectly**
-   * `git` is `git`, and there is no reason to not use it. Our path is the one of simplicity to make
-     getting started with git easy.
- * **be incompatible to git**
-   * the on-disk format must remain compatible, and we will never contend with it.
- * **use async IO everywhere**
-   * for the most part, git operations are heavily reliant on memory mapped IO as well as CPU to decompress data,
-     which doesn't lend itself well to async IO out of the box.
-   * Use `blocking` as well as `gix-features::interrupt` to bring operations into the async world and to control
-     long running operations.
-   * When connecting or streaming over TCP connections, especially when receiving on the server, async seems like a must
-     though, but behind a feature flag.
+### **The 7-File Rule (Documentation as Infrastructure)**
 
-## Contributions
+Treating documentation as infrastructure ensures all AI assistants (Cursor, Windsurf, Copilot) operate with synchronized context, preventing schema drift and maintaining the **Sovereign Knowledge Fabric.**
 
-If what you have seen so far sparked your interest to contribute, then let us say: We are happy to have you and help you to get started.
+**Mandatory Context Files:**
+1. **`.cursorrules`**: Local IDE rules.
+2. **`AGENTS.md`**: A2A Protocol and Agent capabilities.
+3. **`CLAUDE.md`**: Build/test commands and project context.
+4. **`README.md`**: High-level project map.
+5. **`ARCH_PRESERVE.md`**: Architectural preservation rules.
+6. **`.github/copilot-instructions.md`**: GitHub Copilot context.
+7. **`.github/system-instruction.md`**: Global "Sovereign Intelligence" standards.
 
-We recommend running `just test` during the development process to assure CI is green before pushing.
+**When to update:**
+- New features added to `apps/` or `app-agents/`
+- Changes to deployment patterns, build commands, or infrastructure
+- New standards, conventions, or governance policies
 
-A backlog for work ready to be picked up is [available in the Project's Kanban board][project-board], which contains instructions on how
-to pick a task. If it's empty or you have other questions, feel free to [start a discussion][discussions] or reach out to @Byron [privately][keybase].
+### **Agent Workflow (Autonomous Operation Loop)**
 
-For additional details, also take a look at the [collaboration guide].
+When working autonomously, agents follow this algorithmic loop:
 
-[collaboration guide]: https://github.com/GitoxideLabs/gitoxide/blob/main/COLLABORATING.md
-[project-board]: https://github.com/GitoxideLabs/gitoxide/projects
-[discussions]: https://github.com/GitoxideLabs/gitoxide/discussions
-[keybase]: https://keybase.io/byronbates
-[cargo-diet]: https://crates.io/crates/cargo-diet
+1. **Poll & Prioritize**: Fetch the latest open GitHub Pull Requests and Issues.
+2. **Analyze & Engage**: Review each item and post relevant comments or actionable feedback.
+3. **Document**: Update the primary GitHub Issue(s) with a concise summary of progress made and current status.
+4. **Iterate**: Identify the next highest-priority action item to maintain momentum.
+5. **Exception Handling**: If a task is blocked or requires human input, stop and ask for guidance immediately.
 
-### Getting started with Video Tutorials
+### **Pull Request Requirements**
 
-- [Learning Rust with Gitoxide](https://youtube.com/playlist?list=PLMHbQxe1e9Mk5kOHrm9v20-umkE2ck_gE)
-   - In 17 episodes you can learn all you need to meaningfully contribute to `gitoxide`.
-- [Getting into Gitoxide](https://youtube.com/playlist?list=PLMHbQxe1e9MkEmuj9csczEK1O06l0Npy5)
-   - Get an introduction to `gitoxide` itself which should be a good foundation for any contribution, but isn't a requirement for contributions either.
-- [Gifting Gitoxide](https://www.youtube.com/playlist?list=PLMHbQxe1e9MlhyyZQXPi_dc-bKudE-WUw)
-   - See how PRs are reviewed along with a lot of inner monologue.
+* **Labeling**: Apply a label for the **worker/agent** (e.g., `codex`, `claude`, `antigravity`, `vs-code`, `jules`, `gemini-cli`).
+  - Create label if needed: `gh label create <agent-name>`
+  - Apply to PR: `gh pr edit <pr-number> --add-label <agent-name>`
+* **Base Branch**: All PRs must target the `develop` branch.
+* **Documentation Sync**: Every PR must include updates to the **7-File Rule** if architectural changes are made.
+* **Terraform Hygiene**: Run `terraform fmt` and `terraform validate` before pushing changes.
 
-#### Other Media
+## **Infrastructure & Deployment**
 
-- [Rustacean Station Podcast](https://rustacean-station.org/episode/055-sebastian-thiel/)
+### **GitOps Architecture (Flux + ArgoCD + Crossplane + ESO)**
 
-## Roadmap
+Grow Without Limits uses a **declarative GitOps model** with clear separation of concerns:
 
-### Features for 1.0
+- **Flux CD**: Primary GitOps engine for cluster bootstrapping and application delivery.
+- **ArgoCD**: Visual orchestrator for multi-cluster workload management.
+- **Crossplane**: Control plane for managing cloud resources (AWS, GCP, Azure) as Kubernetes objects.
+- **External Secrets Operator (ESO)**: Secure secret injection from AWS Secrets Manager/Azure Key Vault.
 
-Provide a CLI to for the most basic user journey:
+For detailed policy, see [docs/DECLARATIVE_GITOPS_POLICY.md](docs/DECLARATIVE_GITOPS_POLICY.md).
 
-* [x] initialize a repository
-* [x] fetch
-    * [ ] and update worktree
-* clone a repository
-   - [ ] bare
-   - [ ] with working tree
-* [ ] create a commit after adding worktree files
-* [x] add a remote
-* [ ] push
-  * [x] create (thin) pack
+## **Official Contact Information**
 
-### Ideas for Examples
-
-* [ ] `gix tool open-remote` open the URL of the remote, possibly after applying known transformations to go from `ssh` to `https`.
-* [ ] `tix` as example implementation of `tig`, displaying a version of the commit graph, useful for practicing how highly responsive GUIs can be made.
-* [ ] Something like [`git-sizer`](https://github.com/github/git-sizer), but leveraging extreme decompression speeds of indexed packs.
-* [ ] Open up SQL for git using [sqlite virtual tables](https://github.com/rusqlite/rusqlite/blob/master/tests/vtab.rs). Check out gitqlite
-  as well. What would an MVP look like? Maybe even something that could ship with gitoxide. See [this go implementation as example](https://github.com/filhodanuvem/gitql).
-* [ ] A truly awesome history rewriter which makes it easy to understand what happened while avoiding all pitfalls. Think BFG, but more awesome, if that's possible.
-* [ ] `gix-tui` should learn a lot from [fossil-scm] regarding the presentation of data. Maybe [this](https://github.com/Lutetium-Vanadium/requestty/) can be used for prompts. Probably [magit] has a lot to offer, too.
-
-### Ideas for Spin-Offs
-
-* [ ] A system to integrate tightly with `gix-lfs` to allow a multi-tier architecture so that assets can be stored in git and are accessible quickly from an intranet location
-  (for example by accessing the storage read-only over the network) while changes are pushed immediately by the server to other edge locations, like _the cloud_ or backups. Sparse checkouts along with explorer/finder integrations
-  make it convenient to only work on a small subset of files locally. Clones can contain all configuration somebody would need to work efficiently from their location,
-  and authentication for the git history as well as LFS resources make the system secure. One could imagine encryption support for untrusted locations in _the cloud_
-  even though more research would have to be done to make it truly secure.
-* [ ] A [syncthing] like client/server application. This is to demonstrate how lower-level crates can be combined into custom applications that use
-  only part of git's technology to achieve their very own thing. Watch out for big file support, multi-device cross-syncing, the possibility for
-  untrusted destinations using full-encryption, case-insensitive and sensitive filesystems, and extended file attributes as well as ignore files.
-* An event-based database that uses commit messages to store deltas, while occasionally aggregating the actual state in a tree. Of course it's distributed by nature, allowing
-  people to work offline.
-    - It's abstracted to completely hide the actual data model behind it, allowing for all kinds of things to be implemented on top.
-    - Commits probably need a nanosecond component for the timestamp, which can be added via custom header field.
-    - having recording all changes allows for perfect merging, both on the client or on the server, while keeping a natural audit log which makes it useful for mission critical
-      databases in business.
-    * **Applications**
-      - Can markdown be used as database so issue-trackers along with meta-data could just be markdown files which are mostly human-editable? Could user interfaces
-        be meta-data aware and just hide the meta-data chunks which are now editable in the GUI itself? Doing this would make conflicts easier to resolve than an `sqlite`
-        database.
-      - A time tracker - simple data, very likely naturally conflict free, and interesting to see it in terms of teams or companies using it with maybe GitHub as Backing for authentication.
-        - How about supporting multiple different trackers, as in different remotes?
-
-[syncthing]: https://github.com/syncthing/syncthing
-[fossil-scm]: https://www.fossil-scm.org
-[magit]: https://magit.vc
-
-## Shortcomings & Limitations
-
-Please take a look at the [`SHORTCOMINGS.md` file](https://github.com/GitoxideLabs/gitoxide/blob/main/SHORTCOMINGS.md) for details.
-
-## Credits
-
-* **itertools** _(MIT Licensed)_
-  * We use the `izip!` macro in code
-* **flate2** _(MIT Licensed)_
-  * We use the high-level `flate2` library to implement decompression and compression, which builds on the high-performance `zlib-rs` crate.
-
-## 🙏 Special Thanks 🙏
-
-At least for now this section is exclusive to highlight the incredible support that [Josh Triplett](https://github.com/joshtriplett) has provided to me
-in the form of advice, sponsorship and countless other benefits that were incredibly meaningful. Going full time with `gitoxide` would hardly have been
-feasible without his involvement, and I couldn't be more grateful 😌.
-
-## License
-
-This project is licensed under either of
-
- * Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or
-   http://www.apache.org/licenses/LICENSE-2.0)
- * MIT license ([LICENSE-MIT](LICENSE-MIT) or
-   http://opensource.org/licenses/MIT)
-
-at your option.
-
-## Fun facts
-
-* Originally @Byron was really fascinated by [this problem](https://github.com/gitpython-developers/GitPython/issues/765#issuecomment-396072153)
-  and believes that with `gitoxide` it will be possible to provide the fastest solution for it.
-* @Byron has been absolutely blown away by `git` from the first time he experienced git more than 13 years ago, and
-  tried to implement it in [various shapes](https://github.com/gitpython-developers/GitPython/pull/1028) and [forms](https://github.com/byron/gogit)
-  multiple [times](https://github.com/Byron/gitplusplus). Now with Rust @Byron finally feels to have found the right tool for the job!
+- **Contact**: `contact@lornu.ai` - Official email for all external communications
+- **Policy**: Only publish `contact@lornu.ai` in documentation and UI. Never publish personal or alternative email addresses.
